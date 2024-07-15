@@ -12,7 +12,7 @@ return require('packer').startup(function(use)
 		requires = { {'nvim-lua/plenary.nvim'} }
 	}
 	use( { 
-		"morhetz/gruvbox",
+		'morhetz/gruvbox',
 		as = 'gruvbox',
 		config = function()
 			vim.cmd('colorscheme gruvbox')
@@ -61,11 +61,8 @@ return require('packer').startup(function(use)
 			--local neopyter = require('neopyter')
 			--neopyter.setup({
 				--mode = "direct",
-				--remote_address = "127.0.0.1:9001",
+				--remote_address = "10.98.14.121:9001",
 				--file_pattern = { "*.ju.*" },
-				--on_attach = function(bufnr)
-					---- 
-				--end,
 				--highlight = {
 					--enable = true,
 					--shortsighted = false,
@@ -74,7 +71,6 @@ return require('packer').startup(function(use)
 		--end
 	--}
 	--use("AbaoFromCUG/websocket.nvim")
-	--
 	use('jpalardy/vim-slime')
 	use {
 		'VonHeikemen/lsp-zero.nvim',
@@ -90,4 +86,7 @@ return require('packer').startup(function(use)
 	use('preservim/nerdtree')
 	use( "williamboman/mason.nvim" )
 	use( "williamboman/mason-lspconfig.nvim" )
+	use( "majutsushi/tagbar" )
+	use('romainl/vim-cool')
+	--use {'kevinhwang91/nvim-ufo', requires = 'kevinhwang91/promise-async'}
 end)
