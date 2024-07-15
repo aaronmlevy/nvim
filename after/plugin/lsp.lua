@@ -2,7 +2,6 @@ local lsp = require('lsp-zero')
 
 lsp.preset('recommended')
 
-
 lsp.use('pyright')
 
 lsp.on_attach(function(client, bufnr)
