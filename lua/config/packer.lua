@@ -28,6 +28,67 @@ return require('packer').startup(function(use)
 
 	use("theprimeagen/harpoon")
 	use("tpope/vim-fugitive")
+	use("github/copilot.vim")
+	use('nvim-lua/plenary.nvim')
 
+	use {
+		'CopilotC-Nvim/CopilotChat.nvim',
+		branch = 'canary',
+		config = function()
+			-- Configuration options go here
+			require('CopilotChat').setup({
+				debug = true  -- Enable debugging
+				-- Add more configuration options as needed
+			})
+		end,
+		requires = {
+			{'zbirenbaum/copilot.lua'},  -- Dependency: copilot.lua
+			{'nvim-lua/plenary.nvim'}    -- Dependency: plenary.nvim
+		}
+	}
 
+	use {
+		"kiyoon/jupynium.nvim",
+		run = "pip3 install --user jupynium",
+	}
+	use { "rcarriga/nvim-notify" }   -- optional
+	use { "stevearc/dressing.nvim" } -- optional, UI for :JupyniumKernelSelect
+	use { "preservim/nerdcommenter" }
+	--use {
+		--'SUSTech-data/neopyter',
+		--config = function()
+			---- Require the module and configure the options
+			--local neopyter = require('neopyter')
+			--neopyter.setup({
+				--mode = "direct",
+				--remote_address = "127.0.0.1:9001",
+				--file_pattern = { "*.ju.*" },
+				--on_attach = function(bufnr)
+					---- 
+				--end,
+				--highlight = {
+					--enable = true,
+					--shortsighted = false,
+				--}
+			--})
+		--end
+	--}
+	--use("AbaoFromCUG/websocket.nvim")
+	--
+	use('jpalardy/vim-slime')
+	use {
+		'VonHeikemen/lsp-zero.nvim',
+		branch = 'v3.x',
+		requires = {
+			--- Uncomment the two plugins below if you want to manage the language servers from neovim
+			{'williamboman/mason.nvim'},
+			{'williamboman/mason-lspconfig.nvim'},
+			{'neovim/nvim-lspconfig'},
+			{'hrsh7th/nvim-cmp'},
+			{'hrsh7th/cmp-nvim-lsp'},
+			{'L3MON4D3/LuaSnip'},
+		}
+	}
+
+	use('preservim/nerdtree')
 end)
