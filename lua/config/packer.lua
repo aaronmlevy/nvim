@@ -12,10 +12,10 @@ return require('packer').startup(function(use)
 		requires = { {'nvim-lua/plenary.nvim'} }
 	}
 	use( { 
-		'morhetz/gruvbox',
-		as = 'gruvbox',
+		'eddyekofo94/gruvbox-flat.nvim',
 		config = function()
-			vim.cmd('colorscheme gruvbox')
+			vim.g.gruvbox_flat_style = "dark" 
+			vim.cmd('colorscheme gruvbox-flat')
 		end
 	})
 
@@ -24,8 +24,11 @@ return require('packer').startup(function(use)
 		'nvim-treesitter/nvim-treesitter',
 		run = ':TSUpdate'
 	}
-
-
+	use({
+	  "nvim-treesitter/nvim-treesitter-textobjects",
+	  after = "nvim-treesitter",
+	  requires = "nvim-treesitter/nvim-treesitter",
+	})
 	use("theprimeagen/harpoon")
 	use("tpope/vim-fugitive")
 	use("github/copilot.vim")
@@ -88,5 +91,11 @@ return require('packer').startup(function(use)
 	use( "williamboman/mason-lspconfig.nvim" )
 	use( "majutsushi/tagbar" )
 	use('romainl/vim-cool')
-	--use {'kevinhwang91/nvim-ufo', requires = 'kevinhwang91/promise-async'}
+	use( "vim-airline/vim-airline" )
+	use( "vim-airline/vim-airline-themes" )
+	use( "qpkorr/vim-bufkill" )
+	use( "easymotion/vim-easymotion" )
+	use( "airblade/vim-gitgutter" )
+	use( 'mg979/vim-visual-multi')
 end)
+
