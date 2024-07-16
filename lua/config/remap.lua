@@ -26,7 +26,7 @@ vim.cmd('command! MD lua _G.markdown_cell()')
 vim.keymap.set('n', '<leader>f', ':w<CR>:! /home/aaron/.pyenv/shims/black --target-version=py36 --line-length=95 %:p<CR>', {noremap = true})
 
 -- Clipboard
-vim.opt.clipboard:append("unnamedplus")
+--vim.opt.clipboard:append("unnamedplus")
 
 
 -- Buffer navigation
@@ -58,3 +58,5 @@ vim.g.VM_maps = {
 -- Don't move the mouse on scroll
 vim.o.mouse = 'a'
 
+-- Use relative numbers
+vim.opt.relativenumber = true
