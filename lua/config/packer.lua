@@ -29,7 +29,7 @@ return require('packer').startup(function(use)
 	  after = "nvim-treesitter",
 	  requires = "nvim-treesitter/nvim-treesitter",
 	})
-	use("theprimeagen/harpoon")
+	--use("theprimeagen/harpoon")
 	use("tpope/vim-fugitive")
 	use("github/copilot.vim")
 	use('nvim-lua/plenary.nvim')
@@ -97,5 +97,6 @@ return require('packer').startup(function(use)
 	use( "easymotion/vim-easymotion" )
 	use( "airblade/vim-gitgutter" )
 	use( 'mg979/vim-visual-multi')
+	use( 'hanschen/vim-ipython-cell')
 end)
 

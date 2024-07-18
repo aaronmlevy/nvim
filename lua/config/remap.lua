@@ -60,3 +60,9 @@ vim.o.mouse = 'a'
 
 -- Use relative numbers
 vim.opt.relativenumber = true
+
+-- Set ipython paste
+vim.keymap.set('n', '<leader>i', ':let g:slime_python_ipython=1<CR>', {noremap = true})
+
+-- Set paste, nopaste
+vim.keymap.set('n', '<leader>p', ':if &paste | set nopaste | else | set paste | endif<CR>', {noremap = true})
