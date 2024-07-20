@@ -1,9 +1,12 @@
-local nvim_lsp = require('lspconfig')
-nvim_lsp.pyright.setup{
+local lspconfig = require('lspconfig')
+lspconfig.pyright.setup{
     settings = {
         pyright = {
             disableDiagnostics = true
         }
     }
 }
+
+
+lspconfig.matlab_ls.setup({...})
 
