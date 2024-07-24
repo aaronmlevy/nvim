@@ -8,6 +8,7 @@ require("CopilotChat").setup({
 	window = {
 		layout = 'vertical',
 		relative = 'cursor',
+        width=.25
 	},
 	mappings = {
 		reset = {

@@ -66,3 +66,9 @@ vim.keymap.set('n', '<leader>i', ':if g:slime_python_ipython == 1 | let g:slime_
 
 -- Set paste, nopaste
 vim.keymap.set('n', '<leader>p', ':if &paste | set nopaste | else | set paste | endif<CR>', {noremap = true})
+
+-- Set tabs
+vim.opt.tabstop = 4
+vim.opt.shiftwidth = 4
+vim.opt.softtabstop = 4
+vim.opt.expandtab = true
