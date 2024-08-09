@@ -99,5 +99,6 @@ return require('packer').startup(function(use)
 	use( 'mg979/vim-visual-multi')
 	use( 'hanschen/vim-ipython-cell')
     use( 'liuchengxu/vista.vim')
+    use( 'stsewd/isort.nvim' )
 end)
 
