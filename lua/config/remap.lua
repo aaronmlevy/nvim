@@ -75,3 +75,10 @@ vim.opt.expandtab = true
 
 -- Equal window width
 vim.keymap.set('n', '=', ':wincmd=<CR>', {noremap = true})
+
+-- Python debug
+vim.keymap.set('n', '<leader>db', 'oimport pdb; pdb.set_trace()<Esc>', {noremap = true})
+
+-- Make j and k trigger the jump list so you can go back with ctrl-o and ctrl-i
+vim.keymap.set('n', 'k', "v:count > 1 ? \"m'\" .. v:count .. 'k' : 'gk'", {expr = true, noremap = true, silent = true})
+vim.keymap.set('n', 'j', "v:count > 1 ? \"m'\" .. v:count .. 'j' : 'gj'", {expr = true, noremap = true, silent = true})
