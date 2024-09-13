@@ -97,8 +97,9 @@ return require('packer').startup(function(use)
 	use( "easymotion/vim-easymotion" )
 	use( "airblade/vim-gitgutter" )
 	use( 'mg979/vim-visual-multi')
-	use( 'hanschen/vim-ipython-cell')
+	--use( 'hanschen/vim-ipython-cell')
     use( 'liuchengxu/vista.vim')
     use( 'stsewd/isort.nvim' )
+    use {"ellisonleao/glow.nvim", config = function() require("glow").setup() end}
 end)
 
