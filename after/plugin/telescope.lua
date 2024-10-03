@@ -4,3 +4,7 @@ vim.keymap.set('n', '<C-p>', builtin.git_files, {})
 vim.keymap.set('n', '<leader>fw', function()
 	builtin.live_grep()
 end)
+
+vim.api.nvim_create_user_command('LS', function()
+    require('telescope.builtin').buffers()
+end, {})
