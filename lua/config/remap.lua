@@ -24,6 +24,8 @@ end
 vim.cmd('command! MD lua _G.markdown_cell()')
 -- Black
 vim.keymap.set('n', '<leader>f', ':w<CR>:! /home/aaron/.pyenv/shims/black --target-version=py36 --line-length=95 %:p<CR>', {noremap = true})
+vim.keymap.set('n', '<leader>l', ':w<CR>:cgetexpr system("flake8 " . shellescape(expand("%:p")))<CR>:copen<CR>', { noremap = true, silent = true })
+
 
 -- Clipboard
 --vim.opt.clipboard:append("unnamedplus")

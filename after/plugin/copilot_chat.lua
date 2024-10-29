@@ -1,18 +1,17 @@
--- Map the <leader>cq to quick chat
-vim.keymap.set('n', '<leader>ch', function()
-	local input = vim.fn.input('Quick Chat: ')
-	require('CopilotChat').ask(input, { selection = require('CopilotChat.select').buffer })
+-- Map the <leader>ch to quick chat for visual selection
+vim.keymap.set('v', '<leader>ch', function()
+	require('CopilotChat').ask(input, { selection = require('CopilotChat.select').visual })
 end, { noremap = true, silent = true, desc = 'Quick Chat' })
 
 require("CopilotChat").setup({
 	window = {
 		layout = 'vertical',
 		relative = 'cursor',
-        width=.25
+        width = .25
 	},
 	mappings = {
 		reset = {
-			normal ='<C-r>',
+			normal = '<C-r>',
 		},
 	},
 })
