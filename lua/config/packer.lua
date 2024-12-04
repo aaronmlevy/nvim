@@ -36,7 +36,7 @@ return require('packer').startup(function(use)
 
 	use {
 		'CopilotC-Nvim/CopilotChat.nvim',
-		branch = 'canary',
+		branch = 'main',
 		config = function()
 			-- Configuration options go here
 			require('CopilotChat').setup({
@@ -101,5 +101,7 @@ return require('packer').startup(function(use)
     use( 'liuchengxu/vista.vim')
     use( 'stsewd/isort.nvim' )
     use {"ellisonleao/glow.nvim", config = function() require("glow").setup() end}
+    use( 'will133/vim-dirdiff' )
+
 end)
 
