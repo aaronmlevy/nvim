@@ -1,0 +1,43 @@
+#!/bin/bash
+
+# Function to perform directory diff using vim-dirdiff
+
+# Check if at least two arguments are provided
+if [ "$#" -lt 2 ]; then
+    echo "Usage: dirdiff <directory1> <directory2> [vim_options]"
+    exit 1
+fi
+
+# Assign first two arguments to DIR1 and DIR2
+DIR1="$1"
+DIR2="$2"
+shift 2
+
+# Verify that DIR1 and DIR2 are directories
+if [ ! -d "$DIR1" ]; then
+    echo "Error: '$DIR1' is not a directory or does not exist."
+    exit 1
+fi
+
+if [ ! -d "$DIR2" ]; then
+    echo "Error: '$DIR2' is not a directory or does not exist."
+    exit 1
+fi
+
+# Shell-escape the directory paths to handle spaces and special characters
+ESCAPED_DIR1=$(printf '%q' "$DIR1")
+ESCAPED_DIR2=$(printf '%q' "$DIR2")
+
+# Determine whether to use vim or nvim based on availability
+if command -v nvim >/dev/null 2>&1; then
+    EDITOR_CMD="nvim"
+elif command -v vim >/dev/null 2>&1; then
+    EDITOR_CMD="vim"
+else
+    echo "Error: Neither 'vim' nor 'nvim' is installed."
+    exit 1
+fi
+
+# Launch Vim with the vim-dirdiff command
+"$EDITOR_CMD" "$@" -c "DirDiff $ESCAPED_DIR1 $ESCAPED_DIR2"
+
