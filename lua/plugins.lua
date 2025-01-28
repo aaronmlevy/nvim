@@ -60,13 +60,21 @@ return {
       "hrsh7th/cmp-nvim-lsp",
       "L3MON4D3/LuaSnip",
     },
-    -- config = function() ... end
+    config = function() 
+        require("config.lsp")
+        require("config.lspconfig")
+    end
   },
   { "preservim/nerdtree",
   config = function()
       require("config.nerdtree")
   end},
-  { "williamboman/mason.nvim" },
+  { "williamboman/mason.nvim",
+  config = function()
+      require("config.mason")
+  end
+
+  },
   { "williamboman/mason-lspconfig.nvim" },
   { "romainl/vim-cool" },
   { "vim-airline/vim-airline" },
