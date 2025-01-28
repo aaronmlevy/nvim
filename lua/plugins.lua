@@ -74,6 +74,7 @@ return {
   { "qpkorr/vim-bufkill" },
   { "easymotion/vim-easymotion" },
   { "airblade/vim-gitgutter" },
+  { "tpope/vim-fugitive" },
   { "mg979/vim-visual-multi",
   init=function()
     vim.g.VM_maps = {
