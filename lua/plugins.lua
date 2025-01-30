@@ -55,27 +55,55 @@ return {
     "VonHeikemen/lsp-zero.nvim",
     branch = "v3.x",
     dependencies = {
+      "williamboman/mason.nvim",
+      "williamboman/mason-lspconfig.nvim",
       "neovim/nvim-lspconfig",
       "hrsh7th/nvim-cmp",
       "hrsh7th/cmp-nvim-lsp",
       "L3MON4D3/LuaSnip",
     },
-    config = function() 
-        require("config.lsp")
-        require("config.lspconfig")
+    config = function()
+      local lsp_zero = require('lsp-zero')
+      lsp_zero.on_attach(function(client, bufnr)
+        lsp_zero.default_keymaps({buffer = bufnr})
+      end)
+
+      require('mason').setup({})
+      require('mason-lspconfig').setup({
+        ensure_installed = {
+          'jedi_language_server',
+          'pyright',
+          'clangd',
+          'matlab_ls',
+        },
+        handlers = {
+          lsp_zero.default_setup,
+          pyright = function()
+            require('lspconfig').pyright.setup({
+              settings = {
+                python = {
+                  analysis = {
+                    diagnosticMode = "openFilesOnly",  -- Only show diagnostics for open files
+                    typeCheckingMode = "off",          -- Disable type checking
+                    diagnosticSeverityOverrides = {
+                      reportGeneralTypeIssues = "none",        -- Disable general type checking
+                      reportOptionalMemberAccess = "none",     -- Disable optional member access warnings
+                      reportOptionalSubscript = "none",        -- Disable optional subscript warnings
+                      reportPrivateImportUsage = "none",       -- Disable private import warnings
+                    }
+                  }
+                }
+              }
+            })
+          end,
+        }
+      })
     end
   },
   { "preservim/nerdtree",
   config = function()
       require("config.nerdtree")
   end},
-  { "williamboman/mason.nvim",
-  config = function()
-      require("config.mason")
-  end
-
-  },
-  { "williamboman/mason-lspconfig.nvim" },
   { "romainl/vim-cool" },
   { "vim-airline/vim-airline" },
   { "vim-airline/vim-airline-themes" },

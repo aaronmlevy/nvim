@@ -1,8 +1,3 @@
--- Ensure you have these plugins installed
-require("mason").setup()
-require("mason-lspconfig").setup()
-
--- Setup LSP servers
 local lspconfig = require("lspconfig")
 
 -- Configure Pyright
