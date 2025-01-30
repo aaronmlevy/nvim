@@ -91,7 +91,11 @@ return {
       ['Add Cursor Down'] = '<C-z>'
     }
   end},
-  { "liuchengxu/vista.vim" },
+  { "liuchengxu/vista.vim", 
+  config=function()
+      require("config.vista")
+  end
+  },
   { "stsewd/isort.nvim" },
   {
     "ellisonleao/glow.nvim",
