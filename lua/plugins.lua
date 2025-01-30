@@ -63,11 +63,19 @@ return {
       "L3MON4D3/LuaSnip",
     },
     config = function()
-      local lsp_zero = require('lsp-zero')
-      lsp_zero.on_attach(function(client, bufnr)
-        lsp_zero.default_keymaps({buffer = bufnr})
-      end)
+        local lsp_zero = require('lsp-zero')
+        lsp_zero.on_attach(function(client, bufnr)
+            -- Only keep definition-related keymaps
+            local opts = {buffer = bufnr}
+            vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
+            vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
+        end)
 
+        -- Disable virtual text globally
+        vim.diagnostic.config({
+            virtual_text = false,
+            signs = false
+        })
       require('mason').setup({})
       require('mason-lspconfig').setup({
         ensure_installed = {
@@ -78,6 +86,19 @@ return {
         },
         handlers = {
           lsp_zero.default_setup,
+        matlab_ls = function()
+            require('lspconfig').matlab_ls.setup({
+                settings = {
+                    matlab = {
+                        diagnostics = {
+                            virtual_text = false  -- Disable virtual text for MATLAB files
+                        }
+                    }
+                }
+            })  -- Properly close the setup function
+            -- Now set the key mapping outside of the setup function
+            vim.keymap.set("n", "gd", function() vim.lsp.buf.definition() end, opts)
+        end,
           pyright = function()
             require('lspconfig').pyright.setup({
               settings = {
@@ -93,7 +114,14 @@ return {
                     }
                   }
                 }
-              }
+              },
+            -- Disable virtual text diagnostics
+            on_attach = function(client, bufnr)
+                vim.lsp.diagnostic.on_publish_diagnostics = function(_, _, params, _)
+                    -- Disable virtual text
+                    params.diagnostics = {}
+                end
+            end,
             })
           end,
         }
