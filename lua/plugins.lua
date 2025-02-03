@@ -140,13 +140,15 @@ return {
   { "airblade/vim-gitgutter" },
   { "tpope/vim-fugitive" },
   { "mg979/vim-visual-multi",
-  init=function()
-    vim.g.VM_maps = {
-      ['Find Under'] = '<C-f>',
-      ['Find Subword Under'] = '<C-f>',
-      ['Add Cursor Down'] = '<C-z>'
-    }
-  end},
+    enabled = not vim.g.vscode,  -- Only load outside VSCode
+    init=function()
+      vim.g.VM_maps = {
+        ['Find Under'] = '<C-f>',
+        ['Find Subword Under'] = '<C-f>',
+        ['Add Cursor Down'] = '<C-z>'
+      }
+    end
+  },
   { "liuchengxu/vista.vim", 
   config=function()
       require("config.vista")
@@ -211,6 +213,13 @@ return {
       ft = { "markdown", "Avante" },
     },
   },
-}
+},
+{
+    "folke/flash.nvim",
+    event = "VeryLazy",
+    opts = {},
+    config = function()
+        require("config.flash").setup()
+    end
 }
 
