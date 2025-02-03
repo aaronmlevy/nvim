@@ -221,5 +221,6 @@ return {
     config = function()
         require("config.flash").setup()
     end
+},
 }
 
