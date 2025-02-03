@@ -1,0 +1,5 @@
+{
+    "editor.lineNumbers": "relative",
+    "vscode-neovim.neovimInitVimPaths.linux": "~/.config/nvim/init.lua",
+    "vscode-neovim.neovimInitVimPaths.win32": "%LOCALAPPDATA%\\nvim\\init.lua"
+} 

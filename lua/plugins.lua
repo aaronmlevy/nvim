@@ -49,7 +49,7 @@ return {
   { "jpalardy/vim-slime",
   config = function()
       require("config.vim_slime")
-  end
+  end,
   },
   {
     "VonHeikemen/lsp-zero.nvim",
