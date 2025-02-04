@@ -6,7 +6,7 @@ vim.g.mapleader = " "
 vim.keymap.set("i", "jj", "<Esc>")
 
 -- Black
-vim.keymap.set('n', '<leader>f', ':w<CR>:! /home/aaron/.pyenv/shims/black --target-version=py36 --line-length=95 %:p<CR>', {noremap = true})
+vim.keymap.set('n', '<leader>b', ':w<CR>:! /home/aaron/.pyenv/shims/black --target-version=py36 --line-length=95 %:p<CR>', {noremap = true})
 vim.keymap.set('n', '<leader>l', ':w<CR>:cgetexpr system("flake8 " . shellescape(expand("%:p")))<CR>:copen<CR>', { noremap = true, silent = true })
 
 
@@ -26,23 +26,6 @@ vim.keymap.set('n', '<C-w>', ':BD!<CR>', {noremap = true})
 -- vim.g.EasyMotion_do_mapping = 0
 -- vim.keymap.set('n', '/', '<Plug>(easymotion-sn)')
 
--- Flash.nvim config with full buffer search
-vim.keymap.set({'n', 'x', 'o'}, '<leader>f', function()
-    require("flash").jump({
-        search = {
-            mode = function(str)
-                return "\\<" .. str
-            end,
-        },
-        label = { after = false, before = true },
-        search = {
-            forward = true,
-            wrap = true,
-            multi_window = false,
-            max_length = 100000,  -- Search entire buffer
-        },
-    })
-end)
 
 -- Navigation 
 vim.keymap.set('n', '<C-j>', '<C-W>j', {noremap = true})
