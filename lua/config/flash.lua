@@ -6,10 +6,14 @@ function M.setup()
         modes = {
             ops = false,
             treesitter = true,
-            char = { highlight = {backdrop=false}},
+            char = { highlight = { backdrop = false } },  -- Disable backdrop highlighting
         },
         label = { after = false, before = true },
-
+        highlight = {
+            backdrop = false,  -- Disable backdrop highlighting
+            label = { bg = "#FFFF00", fg = "#000000" },  -- Set label background to yellow
+            search = { bg = "NONE", fg = "#FF4500" },  -- Remove background and set foreground to orange-red
+        },
     })
 
     -- Flash.nvim config with full buffer search

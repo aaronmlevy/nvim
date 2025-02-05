@@ -13,13 +13,29 @@ return {
       require("nvim-web-devicons").setup {}
     end,
   },
+  --{
+    --"eddyekofo94/gruvbox-flat.nvim",
+    --config = function()
+      --vim.g.gruvbox_flat_style = "dark"
+      --vim.cmd("colorscheme gruvbox-flat")
+    --end,
+  --},
   {
-    "eddyekofo94/gruvbox-flat.nvim",
+    "Mofiqul/vscode.nvim",
     config = function()
-      vim.g.gruvbox_flat_style = "dark"
-      vim.cmd("colorscheme gruvbox-flat")
-    end,
-  },
+        local vscode = require("vscode")
+        vscode.setup({
+            style = "dark", -- Choose 'dark' or 'light'
+            transparent = true, -- Enable transparent background
+            italic_comments = true, -- Enable italic comments
+            disable_nvimtree_bg = true, -- Disable background color for NvimTree
+        })
+        vscode.load()
+
+        -- Remove background color for comments
+        vim.api.nvim_set_hl(0, "Comment", { bg = "NONE" })
+    end
+    },
   {
     "nvim-treesitter/nvim-treesitter",
     build = ":TSUpdate",  -- same as `run = ":TSUpdate"` in packer
