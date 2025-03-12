@@ -8,12 +8,13 @@ function M.setup()
             treesitter = true,
             char = { highlight = { backdrop = false } },  -- Disable backdrop highlighting
         },
-        label = { after = false, before = true },
-        highlight = {
-            backdrop = false,  -- Disable backdrop highlighting
-            label = { bg = "#FFFF00", fg = "#000000" },  -- Set label background to yellow
-            search = { bg = "NONE", fg = "#FF4500" },  -- Remove background and set foreground to orange-red
+        label = {
+            after = false,
+            before = true,
+            bg = "#FFFF00",  -- Set label background to yellow
+            fg = "#000000",  -- Set label foreground to black
         },
+        search = { bg = "NONE", fg = "#FF4500" },  -- Remove background and set foreground to orange-red
     })
 
     -- Flash.nvim config with full buffer search
@@ -21,7 +22,7 @@ function M.setup()
         require("flash").jump({
             search = {
                 mode = function(str)
-                    return "\\<" .. str
+                    return str
                 end,
                 forward = true,
                 wrap = true,

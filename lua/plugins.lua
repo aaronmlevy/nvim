@@ -26,7 +26,7 @@ return {
         local vscode = require("vscode")
         vscode.setup({
             style = "dark", -- Choose 'dark' or 'light'
-            transparent = true, -- Enable transparent background
+            transparent = false, -- Enable transparent background
             italic_comments = true, -- Enable italic comments
             disable_nvimtree_bg = true, -- Disable background color for NvimTree
         })
@@ -230,13 +230,13 @@ return {
     },
   },
 },
-{
-    "folke/flash.nvim",
-    event = "VeryLazy",
-    opts = {},
-    config = function()
-        require("config.flash").setup()
-    end
-},
+    {
+        "folke/flash.nvim",
+        event = "VeryLazy",
+        opts = {},
+        config = function()
+            require("config.flash").setup()
+        end
+    },
 }
 
