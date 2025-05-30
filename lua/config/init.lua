@@ -75,160 +75,88 @@ vim.api.nvim_create_autocmd({ "BufEnter", "FocusGained", "InsertLeave", "WinEnte
 require("config.matlab").setup()
 
 vim.keymap.set("v", "<leader>b", function()
-    -- Always use the current visual selection
+    -- Force update of visual marks and get fresh selection
     vim.cmd('normal! gv')
-    local start_pos = vim.fn.getpos("'<")
-    local end_pos = vim.fn.getpos("'>")
-    local start_line = start_pos[2]
-    local end_line = end_pos[2]
-    if start_line > end_line then start_line, end_line = end_line, start_line end
+    local start_line = vim.fn.line("'<")
+    local end_line = vim.fn.line("'>")
+    
+    -- Exit visual mode to clear selection
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<Esc>', true, false, true), 'n', false)
+    
+    -- Ensure start_line <= end_line
+    if start_line > end_line then 
+        start_line, end_line = end_line, start_line 
+    end
 
-    -- Get the selected lines
+    -- Validate line numbers
+    if start_line <= 0 or end_line <= 0 then
+        print("Invalid selection")
+        return
+    end
+
     local lines = vim.fn.getline(start_line, end_line)
-    local text = table.concat(lines, " ")
-    text = text:gsub("%s*;%s*$", "")  -- Remove trailing semicolon if any
-
-    -- Build formatted output
-    local formatted = {}
-    local var_name = text:match("^%s*([^=]+)%s*=")
-    if var_name then
-        table.insert(formatted, var_name .. " = (...")
-    else
-        table.insert(formatted, "(...")
+    if #lines == 0 then
+        print("No lines selected")
+        return
     end
     
-    -- Extract the part after equals
-    local expr_part = text:match("=%s*(.+)$") or text
+    local text = table.concat(lines, "\n")
+
+    -- Preprocess: replace { } with [ ]
+    local preprocessed_text = text:gsub("{", "["):gsub("}", "]")
+
+    -- Temp file
+    local tmpname = vim.fn.tempname() .. ".py"
+    local tmpfile = io.open(tmpname, "w")
+    if not tmpfile then
+        print("Failed to create temp file")
+        return
+    end
+    tmpfile:write(preprocessed_text)
+    tmpfile:close()
+
+    -- Run Black
+    local black_cmd = string.format("/home/aaron/.pyenv/shims/black --target-version=py36 --line-length=95 --quiet %s", tmpname)
+    local result = os.execute(black_cmd)
+    if result ~= 0 then
+        print("Black formatting failed")
+        os.remove(tmpname)
+        return
+    end
+
+    -- Read result and add ellipses intelligently
+    local new_lines = {}
+    local formatted_lines = {}
+    for line in io.lines(tmpname) do
+        table.insert(formatted_lines, line)
+    end
     
-    -- Split by top-level dots
-    local parts = {}
-    local i = 1
-    local current_part = ""
-    local paren_level = 0
-    
-    while i <= #expr_part do
-        local char = expr_part:sub(i, i)
+    for i, line in ipairs(formatted_lines) do
+        local next_line = formatted_lines[i + 1]
         
-        if char == "(" then
-            paren_level = paren_level + 1
-            current_part = current_part .. char
-        elseif char == ")" then
-            paren_level = paren_level - 1
-            current_part = current_part .. char
-        elseif char == "." and paren_level == 0 then
-            -- Found top-level dot
-            if current_part ~= "" then
-                table.insert(parts, current_part)
-                current_part = ""
-            end
-        else
-            current_part = current_part .. char
-        end
-        i = i + 1
-    end
-    
-    if current_part ~= "" then
-        table.insert(parts, current_part)
-    end
-    
-    -- Format each part
-    for i, part in ipairs(parts) do
-        part = part:gsub("^%s+", ""):gsub("%s+$", "")
-        if i == 1 then
-            -- First part (base object)
-            table.insert(formatted, string.rep(" ", 4) .. part .. "...")
-        else
-            -- Method call
-            local func_name, args = part:match("^([%w_]+)%s*%((.*)%)$")
-            if func_name then
-                -- Args might be an empty string for methods with no arguments
-                if args == "" then
-                    -- Method with empty parentheses
-                    table.insert(formatted, string.rep(" ", 4) .. "." .. func_name .. "()...")
-                else
-                    -- Check if we should split args
-                    local should_split = args:find(",") or #args > 30
-                    
-                    if should_split then
-                        table.insert(formatted, string.rep(" ", 4) .. "." .. func_name .. "(...")
-                        -- Parse and split arguments
-                        local arg_list = {}
-                        local current_arg = ""
-                        local arg_paren_level = 0
-                        local j = 1
-                        
-                        while j <= #args do
-                            local c = args:sub(j, j)
-                            
-                            if c == "(" then
-                                arg_paren_level = arg_paren_level + 1
-                                current_arg = current_arg .. c
-                            elseif c == ")" then
-                                arg_paren_level = arg_paren_level - 1
-                                current_arg = current_arg .. c
-                            elseif c == "," and arg_paren_level == 0 then
-                                -- End of argument
-                                table.insert(arg_list, current_arg)
-                                current_arg = ""
-                            else
-                                current_arg = current_arg .. c
-                            end
-                            j = j + 1
-                        end
-                        
-                        if current_arg ~= "" then
-                            table.insert(arg_list, current_arg)
-                        end
-                        
-                        -- Format each argument
-                        for i, arg in ipairs(arg_list) do
-                            arg = arg:gsub("^%s+", ""):gsub("%s+$", "")
-                            if i == #arg_list then
-                                -- Last argument - no comma
-                                table.insert(formatted, string.rep(" ", 8) .. arg .. "...")
-                            else
-                                -- Not the last argument - add comma
-                                table.insert(formatted, string.rep(" ", 8) .. arg .. ",...")
-                            end
-                        end
-                        
-                        table.insert(formatted, string.rep(" ", 4) .. ")...")
-                    else
-                        -- Short arguments - keep on one line
-                        table.insert(formatted, string.rep(" ", 4) .. "." .. func_name .. "(" .. args .. ")...")
-                    end
-                end
-            else
-                -- Property access or method without parentheses
-                table.insert(formatted, string.rep(" ", 4) .. "." .. part .. "...")
-            end
-        end
-    end
-    
-    table.insert(formatted, ");")
-
-    -- Replace the selected lines with the formatted block
-    if start_line <= end_line and start_line > 0 then
-        -- Ensure valid line range before setting lines
-        local valid_start = start_line - 1
-        local valid_end = end_line
+        -- Post-process: change [ ] back to { }
+        line = line:gsub("%[", "{"):gsub("%]", "}")
         
-        -- Additional safeguard to ensure start < end
-        if valid_start < valid_end then
-            vim.api.nvim_buf_set_lines(0, valid_start, valid_end, false, formatted)
-            
-            -- Exit visual mode using feedkeys
-            vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<Esc>', true, false, true), 'nx', false)
-            
-            -- Set cursor to the start of the formatted block
-            vim.api.nvim_win_set_cursor(0, {start_line, 0})
+        if line:match("^%s*$") then
+            -- Empty line
+            table.insert(new_lines, "")
+        elseif next_line and (
+            line:match("[,\\(\\[{]%s*$") or  -- ends with comma, paren, bracket, brace
+            line:match("=%s*$") or           -- ends with equals (assignment continuation)
+            line:match("and%s*$") or         -- ends with 'and'
+            line:match("or%s*$") or          -- ends with 'or'
+            line:match("\\%s*$") or          -- ends with backslash
+            (next_line and next_line:match("^%s*[.)]")) -- next line starts with dot or closing paren
+        ) then
+            table.insert(new_lines, line .. " ...")
         else
-            print("Invalid selection range: start must be less than end")
-            vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<Esc>', true, false, true), 'nx', false)
+            -- Complete statement
+            table.insert(new_lines, line)
         end
-    else
-        print("Invalid selection: please select text before using this command")
-        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<Esc>', true, false, true), 'nx', false)
     end
-end, { desc = "Format MATLAB-compatible Python block with indent" })
-
+    
+    -- Replace selection
+    vim.api.nvim_buf_set_lines(0, start_line - 1, end_line, false, new_lines)
+    vim.api.nvim_win_set_cursor(0, {start_line, 0})
+    os.remove(tmpname)
+end, { desc = "Black-format Python selection with MATLAB-style ellipses" })
