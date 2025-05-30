@@ -115,15 +115,31 @@ vim.keymap.set("v", "<leader>b", function()
     tmpfile:write(preprocessed_text)
     tmpfile:close()
 
-    -- Run Black
-    local black_cmd = string.format("/home/aaron/.pyenv/shims/black --target-version=py36 --line-length=95 --quiet %s", tmpname)
-    local result = os.execute(black_cmd)
-    if result ~= 0 then
-        print("Black formatting failed")
+    -- Run Black and capture output
+    local black_cmd = string.format("/home/aaron/.pyenv/shims/black --target-version=py36 --line-length=95 --skip-magic-trailing-comma %s 2>&1", tmpname)
+    local handle = io.popen(black_cmd)
+    local black_output = handle:read("*a")
+    handle:close()
+    
+    -- Check if the file was actually formatted by trying to read it
+    local formatted_file = io.open(tmpname, "r")
+    if not formatted_file then
+        print("Black formatting failed - could not read formatted file")
+        if black_output and black_output ~= "" then
+            print("Black output:")
+            print(black_output)
+        end
         os.remove(tmpname)
         return
     end
-
+    formatted_file:close()
+    
+    -- If there's any output from Black, it might be an error or warning
+    if black_output and black_output ~= "" and not black_output:match("^reformatted") then
+        print("Black output:")
+        print(black_output)
+    end
+    
     -- Read result and add ellipses intelligently
     local new_lines = {}
     local formatted_lines = {}
@@ -137,10 +153,15 @@ vim.keymap.set("v", "<leader>b", function()
         -- Post-process: change [ ] back to { }
         line = line:gsub("%[", "{"):gsub("%]", "}")
         
+        -- Remove trailing comma if next line is just a closing paren/bracket/brace
+        if line:match(",%s*$") and next_line and next_line:match("^%s*[%)%]%}]%s*$") then
+            line = line:gsub(",%s*$", "")
+        end
+        
         if line:match("^%s*$") then
             -- Empty line
             table.insert(new_lines, "")
-        elseif next_line and (
+        elseif next_line and not line:match("%.%.%.$") and (
             line:match("[,\\(\\[{]%s*$") or  -- ends with comma, paren, bracket, brace
             line:match("=%s*$") or           -- ends with equals (assignment continuation)
             line:match("and%s*$") or         -- ends with 'and'
@@ -150,7 +171,7 @@ vim.keymap.set("v", "<leader>b", function()
         ) then
             table.insert(new_lines, line .. " ...")
         else
-            -- Complete statement
+            -- Complete statement or already has ellipses
             table.insert(new_lines, line)
         end
     end
