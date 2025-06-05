@@ -181,3 +181,69 @@ vim.keymap.set("v", "<leader>b", function()
     vim.api.nvim_win_set_cursor(0, {start_line, 0})
     os.remove(tmpname)
 end, { desc = "Black-format Python selection with MATLAB-style ellipses" })
+
+vim.keymap.set("v", "<leader>B", function()
+    -- Force update of visual marks and get fresh selection
+    vim.cmd('normal! gv')
+    local start_line = vim.fn.line("'<")
+    local end_line = vim.fn.line("'>")
+    
+    -- Exit visual mode to clear selection
+    vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes('<Esc>', true, false, true), 'n', false)
+    
+    -- Ensure start_line <= end_line
+    if start_line > end_line then 
+        start_line, end_line = end_line, start_line 
+    end
+
+    -- Validate line numbers
+    if start_line <= 0 or end_line <= 0 then
+        print("Invalid selection")
+        return
+    end
+
+    local lines = vim.fn.getline(start_line, end_line)
+    if #lines == 0 then
+        print("No lines selected")
+        return
+    end
+    
+    -- Process lines: remove ellipses and join non-empty lines
+    local processed_lines = {}
+    local current_statement = ""
+    
+    for _, line in ipairs(lines) do
+        -- Remove ellipses from the end of the line
+        local cleaned_line = line:gsub("%s*%.%.%.$", "")
+        
+        -- Skip empty lines
+        if not cleaned_line:match("^%s*$") then
+            if current_statement == "" then
+                current_statement = cleaned_line
+            else
+                -- Add space if the current statement doesn't end with certain characters
+                if not current_statement:match("[({[]%s*$") and not cleaned_line:match("^%s*[.)}%]]") then
+                    current_statement = current_statement .. " " .. cleaned_line:gsub("^%s*", "")
+                else
+                    current_statement = current_statement .. cleaned_line:gsub("^%s*", "")
+                end
+            end
+        else
+            -- Empty line - finish current statement if we have one
+            if current_statement ~= "" then
+                table.insert(processed_lines, current_statement)
+                current_statement = ""
+            end
+            table.insert(processed_lines, "")
+        end
+    end
+    
+    -- Don't forget the last statement
+    if current_statement ~= "" then
+        table.insert(processed_lines, current_statement)
+    end
+    
+    -- Replace selection
+    vim.api.nvim_buf_set_lines(0, start_line - 1, end_line, false, processed_lines)
+    vim.api.nvim_win_set_cursor(0, {start_line, 0})
+end, { desc = "Remove ellipses and put code on single lines" })
