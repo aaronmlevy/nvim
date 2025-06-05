@@ -2,6 +2,10 @@
 vim.opt.number = true
 vim.g.mapleader = " "
 
+-- Smart case search
+vim.opt.ignorecase = true
+vim.opt.smartcase = true
+
 -- Escape
 vim.keymap.set("i", "jj", "<Esc>")
 
