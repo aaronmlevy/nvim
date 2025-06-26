@@ -170,7 +170,7 @@ return {
       require("config.vista")
   end
   },
-  { "stsewd/isort.nvim" },
+  { "stsewd/isort.nvim", build = ":UpdateRemotePlugins" },
   {
     "ellisonleao/glow.nvim",
     config = function()

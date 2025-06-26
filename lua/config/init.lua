@@ -105,7 +105,59 @@ vim.keymap.set("v", "<leader>b", function()
     end
     
     local text = table.concat(lines, "\n")
+    local filetype = vim.bo.filetype
 
+    -- Simple Python formatting
+    if filetype == "python" then
+        -- Temp file
+        local tmpname = vim.fn.tempname() .. ".py"
+        local tmpfile = io.open(tmpname, "w")
+        if not tmpfile then
+            print("Failed to create temp file")
+            return
+        end
+        tmpfile:write(text)
+        tmpfile:close()
+
+        -- Run Black and capture output
+        local black_cmd = string.format("/home/aaron/.pyenv/shims/black --target-version=py36 --line-length=95 %s 2>&1", tmpname)
+        local handle = io.popen(black_cmd)
+        local black_output = handle:read("*a")
+        handle:close()
+        
+        -- Check if the file was actually formatted by trying to read it
+        local formatted_file = io.open(tmpname, "r")
+        if not formatted_file then
+            print("Black formatting failed - could not read formatted file")
+            if black_output and black_output ~= "" then
+                print("Black output:")
+                print(black_output)
+            end
+            os.remove(tmpname)
+            return
+        end
+        formatted_file:close()
+        
+        -- If there's any output from Black, it might be an error or warning
+        if black_output and black_output ~= "" and not black_output:match("^reformatted") then
+            print("Black output:")
+            print(black_output)
+        end
+        
+        -- Read formatted result
+        local new_lines = {}
+        for line in io.lines(tmpname) do
+            table.insert(new_lines, line)
+        end
+        
+        -- Replace selection with formatted code
+        vim.api.nvim_buf_set_lines(0, start_line - 1, end_line, false, new_lines)
+        vim.api.nvim_win_set_cursor(0, {start_line, 0})
+        os.remove(tmpname)
+        return
+    end
+
+    -- MATLAB/other filetypes: use existing complex processing
     -- Preprocess: replace { } with [ ]
     local preprocessed_text = text:gsub("{", "["):gsub("}", "]")
 
@@ -184,7 +236,7 @@ vim.keymap.set("v", "<leader>b", function()
     vim.api.nvim_buf_set_lines(0, start_line - 1, end_line, false, new_lines)
     vim.api.nvim_win_set_cursor(0, {start_line, 0})
     os.remove(tmpname)
-end, { desc = "Black-format Python selection with MATLAB-style ellipses" })
+end, { desc = "Format selection: simple Black for Python, MATLAB-style processing for others" })
 
 vim.keymap.set("v", "<leader>B", function()
     -- Force update of visual marks and get fresh selection
