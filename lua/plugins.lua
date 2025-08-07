@@ -8,11 +8,8 @@ return {
         require("config.telescope")
     end,
   },
-  { "ryanoasis/vim-devicons",
-    config = function()
-      require("nvim-web-devicons").setup {}
-    end,
-  },
+  { "nvim-tree/nvim-web-devicons" },
+  { "ryanoasis/vim-devicons" },
   --{
     --"eddyekofo94/gruvbox-flat.nvim",
     --config = function()
@@ -80,8 +77,8 @@ return {
     },
     config = function()
         local lsp_zero = require('lsp-zero')
+        
         lsp_zero.on_attach(function(client, bufnr)
-            -- Only keep definition-related keymaps
             local opts = {buffer = bufnr}
             vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
             vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
@@ -92,57 +89,36 @@ return {
             virtual_text = false,
             signs = false
         })
-      require('mason').setup({})
-      require('mason-lspconfig').setup({
-        ensure_installed = {
-          'jedi_language_server',
-          'pyright',
-          'clangd',
-          'matlab_ls',
-        },
-        handlers = {
-          lsp_zero.default_setup,
-        matlab_ls = function()
-            require('lspconfig').matlab_ls.setup({
-                settings = {
-                    matlab = {
-                        diagnostics = {
-                            virtual_text = false  -- Disable virtual text for MATLAB files
+        
+        require('mason').setup({})
+        require('mason-lspconfig').setup({
+            ensure_installed = {
+              'pyright',
+              'clangd',
+            },
+            handlers = {
+              lsp_zero.default_setup,
+              pyright = function()
+                require('lspconfig').pyright.setup({
+                  settings = {
+                    python = {
+                      analysis = {
+                        diagnosticMode = "openFilesOnly",
+                        typeCheckingMode = "off",
+                        diagnosticSeverityOverrides = {
+                          reportGeneralTypeIssues = "none",
+                          reportOptionalMemberAccess = "none",
+                          reportOptionalSubscript = "none",
+                          reportPrivateImportUsage = "none",
                         }
+                      }
                     }
-                }
-            })  -- Properly close the setup function
-            -- Now set the key mapping outside of the setup function
-            vim.keymap.set("n", "gd", function() vim.lsp.buf.definition() end, opts)
-        end,
-          pyright = function()
-            require('lspconfig').pyright.setup({
-              settings = {
-                python = {
-                  analysis = {
-                    diagnosticMode = "openFilesOnly",  -- Only show diagnostics for open files
-                    typeCheckingMode = "off",          -- Disable type checking
-                    diagnosticSeverityOverrides = {
-                      reportGeneralTypeIssues = "none",        -- Disable general type checking
-                      reportOptionalMemberAccess = "none",     -- Disable optional member access warnings
-                      reportOptionalSubscript = "none",        -- Disable optional subscript warnings
-                      reportPrivateImportUsage = "none",       -- Disable private import warnings
-                    }
-                  }
-                }
-              },
-            -- Disable virtual text diagnostics
-            on_attach = function(client, bufnr)
-                vim.lsp.diagnostic.on_publish_diagnostics = function(_, _, params, _)
-                    -- Disable virtual text
-                    params.diagnostics = {}
-                end
-            end,
-            })
-          end,
-        }
-      })
-    end
+                  },
+                })
+              end,
+            }
+        })
+    end,
   },
   { "preservim/nerdtree",
   config = function()
@@ -178,60 +154,6 @@ return {
     end,
   },
   { "will133/vim-dirdiff" },
-  {
-  "yetone/avante.nvim",
-  event = "VeryLazy",
-  lazy = false,
-  version = false, -- Set this to "*" to always pull the latest release version, or set it to false to update to the latest code changes.
-  opts = {
-     provider = "openai",
-     providers = {
-       openai = {
-         model = "gpt-4o-mini",
-       },
-     },
-  },
-  -- if you want to build from source then do `make BUILD_FROM_SOURCE=true`
-  build = "make",
-  -- build = "powershell -ExecutionPolicy Bypass -File Build.ps1 -BuildFromSource false" -- for windows
-  dependencies = {
-    "stevearc/dressing.nvim",
-    "nvim-lua/plenary.nvim",
-    "MunifTanjim/nui.nvim",
-    --- The below dependencies are optional,
-    "echasnovski/mini.pick", -- for file_selector provider mini.pick
-    "nvim-telescope/telescope.nvim", -- for file_selector provider telescope
-    "hrsh7th/nvim-cmp", -- autocompletion for avante commands and mentions
-    "ibhagwan/fzf-lua", -- for file_selector provider fzf
-    "nvim-tree/nvim-web-devicons", -- or echasnovski/mini.icons
-    "zbirenbaum/copilot.lua", -- for providers='copilot'
-    {
-      -- support for image pasting
-      "HakonHarnes/img-clip.nvim",
-      event = "VeryLazy",
-      opts = {
-        -- recommended settings
-        default = {
-          embed_image_as_base64 = false,
-          prompt_for_file_name = false,
-          drag_and_drop = {
-            insert_mode = true,
-          },
-          -- required for Windows users
-          use_absolute_path = true,
-        },
-      },
-    },
-    {
-      -- Make sure to set this up properly if you have lazy=true
-      'MeanderingProgrammer/render-markdown.nvim',
-      opts = {
-        file_types = { "markdown", "Avante" },
-      },
-      ft = { "markdown", "Avante" },
-    },
-  },
-},
     {
         "folke/flash.nvim",
         event = "VeryLazy",
@@ -239,6 +161,23 @@ return {
         config = function()
             require("config.flash").setup()
         end
+    },
+    {
+      "ThePrimeagen/harpoon",
+      branch = "harpoon2",
+      dependencies = { "nvim-lua/plenary.nvim" },
+      config = function()
+        local harpoon = require("harpoon")
+        harpoon:setup({
+            settings = {
+                save_on_toggle = false,
+                sync_on_ui_close = false,
+            }
+        })
+        
+        -- Load keybindings
+        require("config.harpoon_keybindings")
+    end,
     },
 }
 
