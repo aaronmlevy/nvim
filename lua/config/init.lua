@@ -65,6 +65,17 @@ vim.keymap.set('n', '<leader>db', 'oimport pdb; pdb.set_trace()<Esc>', {noremap 
 -- Diagnostic float
 vim.keymap.set('n', '?', vim.diagnostic.open_float, {noremap = true})
 
+-- Toggle diagnostics
+vim.keymap.set('n', '<leader>?', function()
+  if vim.diagnostic.is_enabled() then
+    vim.diagnostic.enable(false)
+    print("Diagnostics disabled")
+  else
+    vim.diagnostic.enable(true)
+    print("Diagnostics enabled")
+  end
+end, {noremap = true})
+
 -- Make j and k trigger the jump list so you can go back with ctrl-o and ctrl-i
 vim.keymap.set('n', 'k', "v:count > 1 ? \"m'\" .. v:count .. 'k' : 'gk'", {expr = true, noremap = true, silent = true})
 vim.keymap.set('n', 'j', "v:count > 1 ? \"m'\" .. v:count .. 'j' : 'gj'", {expr = true, noremap = true, silent = true})
