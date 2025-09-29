@@ -179,5 +179,45 @@ return {
         require("config.harpoon_keybindings")
     end,
     },
+    {
+      "mbbill/undotree",
+      config = function()
+        -- Set undotree window width
+        vim.g.undotree_SplitWidth = 40
+        -- Set undotree window position (right side)
+        vim.g.undotree_WindowLayout = 2
+        -- Show relative timestamps
+        vim.g.undotree_RelativeTimestamp = 1
+        -- Show shorter timestamps  
+        vim.g.undotree_ShortIndicators = 1
+        -- Focus undotree window when opened
+        vim.g.undotree_SetFocusWhenToggle = 1
+        
+        -- Key mapping to toggle undotree
+        vim.keymap.set('n', '<leader>u', vim.cmd.UndotreeToggle, { desc = "Toggle Undotree" })
+      end,
+    },
+    {
+      "natecraddock/workspaces.nvim",
+      dependencies = { "nvim-telescope/telescope.nvim" },
+      config = function()
+        require("workspaces").setup({
+          hooks = {
+            open = "Telescope find_files",
+          },
+        })
+        
+        -- Key mapping to open workspace selector
+        vim.keymap.set('n', '<leader>pw', function()
+          require('telescope').extensions.workspaces.workspaces()
+        end, { desc = "Select workspace" })
+      end,
+    },
+    {
+      "iamcco/markdown-preview.nvim",
+      cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
+      ft = { "markdown" },
+      build = function() vim.fn["mkdp#util#install"]() end,
+    },
 }
 

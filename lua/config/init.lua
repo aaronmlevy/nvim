@@ -56,6 +56,11 @@ vim.opt.shiftwidth = 4
 vim.opt.softtabstop = 4
 vim.opt.expandtab = true
 
+-- Swap file management
+vim.opt.swapfile = true
+vim.opt.directory = vim.fn.stdpath('state') .. '/swap//'
+vim.opt.updatetime = 300  -- Write swap more frequently
+
 -- Equal window width
 vim.keymap.set('n', '=', ':wincmd=<CR>', {noremap = true})
 
