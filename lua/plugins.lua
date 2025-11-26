@@ -45,6 +45,27 @@ return {
     dependencies = { "nvim-treesitter/nvim-treesitter" },
   },
   {
+    "zbirenbaum/copilot.lua",
+    cmd = "Copilot",
+    event = "InsertEnter",
+    config = function()
+      require("copilot").setup({
+        suggestion = {
+          enabled = true,
+          auto_trigger = true,
+          debounce = 75,
+          keymap = {
+            accept = "<Tab>",
+            next = "<M-]>",
+            prev = "<M-[>",
+            dismiss = "<C-]>",
+          },
+        },
+        panel = { enabled = false },
+      })
+    end,
+  },
+  {
     "CopilotC-Nvim/CopilotChat.nvim",
     branch = "main",
     dependencies = {
@@ -55,7 +76,6 @@ return {
       require("config.copilot_chat")
     end,
   },
-  { "github/copilot.vim" },
   { "rcarriga/nvim-notify" },
   { "stevearc/dressing.nvim" },
   { "preservim/nerdcommenter" },
@@ -95,6 +115,7 @@ return {
             ensure_installed = {
               'pyright',
               'clangd',
+              'matlab_ls',
             },
             handlers = {
               lsp_zero.default_setup,
@@ -116,7 +137,28 @@ return {
                   },
                 })
               end,
+              matlab_ls = function()
+                require('lspconfig').matlab_ls.setup({})
+              end,
             }
+        })
+
+        -- Configure nvim-cmp to only show on Ctrl+Space
+        local cmp = require('cmp')
+        cmp.setup({
+          completion = {
+            autocomplete = false, -- Don't auto-popup
+          },
+          mapping = cmp.mapping.preset.insert({
+            ['<C-Space>'] = cmp.mapping.complete(), -- Show with Ctrl+Space
+            ['<CR>'] = cmp.mapping.confirm({ select = true }),
+            ['<C-n>'] = cmp.mapping.select_next_item(),
+            ['<C-p>'] = cmp.mapping.select_prev_item(),
+          }),
+          sources = {
+            { name = 'nvim_lsp' },
+            { name = 'luasnip' },
+          },
         })
     end,
   },
@@ -217,7 +259,7 @@ return {
       "iamcco/markdown-preview.nvim",
       cmd = { "MarkdownPreviewToggle", "MarkdownPreview", "MarkdownPreviewStop" },
       ft = { "markdown" },
-      build = function() vim.fn["mkdp#util#install"]() end,
+      build = "cd app && yarn install",
     },
 }
 

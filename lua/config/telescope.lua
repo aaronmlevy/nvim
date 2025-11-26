@@ -26,7 +26,8 @@ vim.keymap.set('n', '<leader>fa', function()
   local dir = vim.fn.input("Add directory to search: ", "", "dir")
   if dir ~= "" then
     table.insert(additional_dirs, dir)
-    print("Added " .. dir .. " to search directories")
+    vim.lsp.buf.add_workspace_folder(vim.fn.expand(dir))
+    print("Added " .. dir .. " to search directories and LSP workspace")
   end
 end, { desc = "Add directory to search" })
 
@@ -45,7 +46,8 @@ vim.keymap.set('n', '<leader>fr', function()
   local choice = vim.fn.inputlist(vim.list_extend({"Select directory to remove:"}, choices))
   if choice > 0 and choice <= #additional_dirs then
     local removed = table.remove(additional_dirs, choice)
-    print("Removed " .. removed .. " from search directories")
+    vim.lsp.buf.remove_workspace_folder(vim.fn.expand(removed))
+    print("Removed " .. removed .. " from search directories and LSP workspace")
   end
 end, { desc = "Remove directory from search" })
 
