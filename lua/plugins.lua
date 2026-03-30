@@ -120,9 +120,21 @@ return {
             handlers = {
               lsp_zero.default_setup,
               pyright = function()
+                -- Auto-detect venv python path
+                local python_path = nil
+                local venv_dirs = { '.venv', 'venv', 'env' }
+                for _, dir in ipairs(venv_dirs) do
+                  local path = vim.fn.getcwd() .. '/' .. dir .. '/bin/python'
+                  if vim.fn.executable(path) == 1 then
+                    python_path = path
+                    break
+                  end
+                end
+
                 require('lspconfig').pyright.setup({
                   settings = {
                     python = {
+                      pythonPath = python_path,
                       analysis = {
                         diagnosticMode = "openFilesOnly",
                         typeCheckingMode = "off",
