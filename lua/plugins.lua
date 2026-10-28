@@ -65,17 +65,6 @@ return {
       })
     end,
   },
-  {
-    "CopilotC-Nvim/CopilotChat.nvim",
-    branch = "main",
-    dependencies = {
-      "zbirenbaum/copilot.lua",
-      "nvim-lua/plenary.nvim",
-    },
-    config = function()
-      require("config.copilot_chat")
-    end,
-  },
   { "rcarriga/nvim-notify" },
   { "stevearc/dressing.nvim" },
   { "preservim/nerdcommenter" },
