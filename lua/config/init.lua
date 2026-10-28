@@ -10,7 +10,7 @@ vim.opt.smartcase = true
 vim.keymap.set("i", "jj", "<Esc>")
 
 -- Black
-vim.keymap.set('n', '<leader>b', ':w<CR>:! /home/aaron/.pyenv/shims/black --target-version=py36 --line-length=95 %:p<CR>', {noremap = true})
+vim.keymap.set('n', '<leader>b', ':w<CR>:! ~/.local/bin/black --target-version=py36 --line-length=95 %:p<CR>', {noremap = true})
 vim.keymap.set('n', '<leader>l', ':w<CR>:cgetexpr system("flake8 " . shellescape(expand("%:p")))<CR>:copen<CR>', { noremap = true, silent = true })
 
 
@@ -115,6 +115,58 @@ vim.api.nvim_create_autocmd({ "BufEnter", "FocusGained", "InsertLeave", "WinEnte
 require("config.lsp_sync_workaround")
 require("config.matlab").setup()
 require("config.claude_cli").setup()
+require("config.scratch").setup()
+
+-- Command to set Python venv without restarting neovim
+vim.api.nvim_create_user_command('SetPythonVenv', function(opts)
+  local venv_path = opts.args
+  local python_path = venv_path .. '/bin/python'
+
+  -- Stop pyright
+  for _, client in ipairs(vim.lsp.get_active_clients()) do
+    if client.name == 'pyright' then
+      vim.lsp.stop_client(client.id)
+    end
+  end
+
+  -- Wait a moment for the client to stop
+  vim.defer_fn(function()
+    -- Get the lsp-zero on_attach if available
+    local lsp_zero = require('lsp-zero')
+
+    -- Restart with new python path and proper on_attach
+    require('lspconfig').pyright.setup({
+      on_attach = function(client, bufnr)
+        local opts = {buffer = bufnr}
+        vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
+        vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
+      end,
+      settings = {
+        python = {
+          pythonPath = python_path,
+          analysis = {
+            diagnosticMode = "openFilesOnly",
+            typeCheckingMode = "off",
+            diagnosticSeverityOverrides = {
+              reportGeneralTypeIssues = "none",
+              reportOptionalMemberAccess = "none",
+              reportOptionalSubscript = "none",
+              reportPrivateImportUsage = "none",
+            }
+          }
+        }
+      }
+    })
+
+    -- Attach to current buffer if it's a Python file
+    local bufnr = vim.api.nvim_get_current_buf()
+    if vim.bo[bufnr].filetype == 'python' then
+      vim.cmd('edit')  -- Trigger LSP attach by re-editing the buffer
+    end
+
+    print("Pyright restarted with venv: " .. venv_path)
+  end, 100)
+end, { nargs = 1, complete = 'dir' })
 
 vim.keymap.set("v", "<leader>b", function()
     -- Force update of visual marks and get fresh selection
@@ -130,7 +182,6 @@ vim.keymap.set("v", "<leader>b", function()
         start_line, end_line = end_line, start_line 
     end
 
-require("config.lsp_sync_workaround")
     -- Validate line numbers
     if start_line <= 0 or end_line <= 0 then
         print("Invalid selection")
@@ -159,7 +210,7 @@ require("config.lsp_sync_workaround")
         tmpfile:close()
 
         -- Run Black and capture output
-        local black_cmd = string.format("/home/aaron/.pyenv/shims/black --target-version=py36 --line-length=95 %s 2>&1", tmpname)
+        local black_cmd = string.format(vim.fn.expand("~/.local/bin/black") .. " --target-version=py36 --line-length=95 %s 2>&1", tmpname)
         local handle = io.popen(black_cmd)
         local black_output = handle:read("*a")
         handle:close()
@@ -211,7 +262,7 @@ require("config.lsp_sync_workaround")
     tmpfile:close()
 
     -- Run Black and capture output
-    local black_cmd = string.format("/home/aaron/.pyenv/shims/black --target-version=py36 --line-length=95 --skip-magic-trailing-comma %s 2>&1", tmpname)
+    local black_cmd = string.format(vim.fn.expand("~/.local/bin/black") .. " --target-version=py36 --line-length=95 --skip-magic-trailing-comma %s 2>&1", tmpname)
     local handle = io.popen(black_cmd)
     local black_output = handle:read("*a")
     handle:close()
