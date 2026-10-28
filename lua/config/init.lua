@@ -112,6 +112,7 @@ vim.keymap.set("v", "<leader>b", function()
         start_line, end_line = end_line, start_line 
     end
 
+require("config.lsp_sync_workaround")
     -- Validate line numbers
     if start_line <= 0 or end_line <= 0 then
         print("Invalid selection")

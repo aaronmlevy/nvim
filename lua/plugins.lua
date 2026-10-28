@@ -93,6 +93,11 @@ return {
             vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
         end)
 
+        -- Force full document sync to avoid incremental sync bug
+        lsp_zero.set_server_config({
+            flags = { allow_incremental_sync = false },
+        })
+
         -- Disable virtual text globally
         vim.diagnostic.config({
             virtual_text = false,
