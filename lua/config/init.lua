@@ -67,6 +67,23 @@ vim.keymap.set('n', '=', ':wincmd=<CR>', {noremap = true})
 -- Python debug
 vim.keymap.set('n', '<leader>db', 'oimport pdb; pdb.set_trace()<Esc>', {noremap = true})
 
+-- Show and copy full file path
+vim.keymap.set('n', '<C-g>', function()
+  local filepath = vim.fn.expand("%:p")
+  vim.fn.setreg('+', filepath)
+  vim.fn.system({'tmux', 'set-buffer', '--', filepath})
+  print(filepath)
+end, {noremap = true})
+
+-- Mirror every yank into the tmux paste buffer
+vim.api.nvim_create_autocmd('TextYankPost', {
+  callback = function()
+    if vim.v.event.operator == 'y' then
+      vim.fn.system({'tmux', 'set-buffer', '--', table.concat(vim.v.event.regcontents, '\n')})
+    end
+  end,
+})
+
 -- Diagnostic float
 vim.keymap.set('n', '?', vim.diagnostic.open_float, {noremap = true})
 
@@ -95,6 +112,7 @@ vim.api.nvim_create_autocmd({ "BufEnter", "FocusGained", "InsertLeave", "WinEnte
   })
 
 
+require("config.lsp_sync_workaround")
 require("config.matlab").setup()
 require("config.claude_cli").setup()
 

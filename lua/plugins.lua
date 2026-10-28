@@ -179,6 +179,10 @@ return {
   { "easymotion/vim-easymotion" },
   { "airblade/vim-gitgutter" },
   { "tpope/vim-fugitive" },
+  {
+    "martintrojer/jj-fugitive",
+    dependencies = { "martintrojer/fugitive-core.nvim" },
+  },
   { "mg979/vim-visual-multi",
     enabled = not vim.g.vscode,  -- Only load outside VSCode
     init=function()
