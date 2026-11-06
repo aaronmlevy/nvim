@@ -61,3 +61,32 @@ end, { silent = true })
 vim.api.nvim_set_keymap('n', '<leader>x', 'ma<Plug>SlimeParagraphSend', {})
 vim.api.nvim_set_keymap('n', '<C-v>v', '<Plug>SlimeConfig', {})
 vim.g.slime_default_config = {socket_name = vim.fn.split(vim.env.TMUX, ",")[1], target_pane= ":.2"}
+
+-- <leader>r: pick which REPL this buffer slimes into. Lists tmux panes (any session/window)
+-- running python/ipython or MATLAB, or titled repl-* (shared Claude REPLs), then bash shells
+-- (shown with their cwd). Choice is buffer-local.
+local function pick_slime_target()
+  local fmt = '#{pane_id}\t#{pane_title}\t#{pane_current_command}\t#{session_name}:#{window_index}\t#{pane_current_path}'
+  local lines = vim.fn.systemlist({ 'tmux', 'list-panes', '-a', '-F', fmt })
+  local repls, shells = {}, {}
+  for _, l in ipairs(lines) do
+    local id, title, cmd, where, path = l:match('^(%S+)\t(.-)\t(%S*)\t(%S+)\t(.*)$')
+    if id and id ~= vim.env.TMUX_PANE then
+      -- tmux's default title is the hostname: show the cwd instead
+      if title == vim.fn.hostname() or title == '' then title = vim.fn.fnamemodify(path, ':~') end
+      if cmd:match('python') or cmd:lower():match('matlab') or title:match('^repl%-') then
+        table.insert(repls, { id = id, label = string.format('%-5s %-8s %-20s %s', id, cmd, title, where) })
+      elseif cmd == 'bash' or cmd == 'zsh' then
+        table.insert(shells, { id = id, label = string.format('%-5s %-8s %-20s %s', id, cmd, title, where) })
+      end
+    end
+  end
+  local panes = vim.list_extend(repls, shells)
+  if #panes == 0 then return vim.notify('No REPL or shell panes found', vim.log.levels.WARN) end
+  vim.ui.select(panes, { prompt = 'Slime target', format_item = function(p) return p.label end }, function(p)
+    if not p then return end
+    vim.b.slime_config = { socket_name = vim.g.slime_default_config.socket_name, target_pane = p.id }
+    vim.notify('Slime → ' .. p.label)
+  end)
+end
+vim.keymap.set('n', '<leader>r', pick_slime_target, { desc = 'Pick slime REPL pane' })
